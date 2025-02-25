@@ -9,4 +9,11 @@ public class AllExceptions {
             super(str);
         }
     }
+
+    public static class courseAllReadyExist extends RuntimeException{
+        public courseAllReadyExist(String str) {
+            super(str);
+        }
+
+    }
 }

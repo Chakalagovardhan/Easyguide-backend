@@ -1,11 +1,14 @@
 package com.gova.EasyGuide.service.db1.Users;
 
 
+import com.gova.EasyGuide.Enums.Roles;
 import com.gova.EasyGuide.configurations.DetailsPatcher;
 import com.gova.EasyGuide.entities.bd1.BaseUser;
+import com.gova.EasyGuide.entities.bd1.Mentors;
 import com.gova.EasyGuide.entities.bd1.User;
 import com.gova.EasyGuide.entities.bd1.UserRegistartionDto;
 import com.gova.EasyGuide.exceptions.AllExceptions;
+import com.gova.EasyGuide.repositeries.db1repo.MentorRepo;
 import com.gova.EasyGuide.repositeries.db1repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private DetailsPatcher patcher;
 
+    @Autowired
+    private MentorRepo mentorRepo;
+
 
     @Override
     public User regiseterUser(UserRegistartionDto dto) {
@@ -34,6 +40,7 @@ public class UserServiceImpl implements UserService {
 
         }
             User user = new User(dto.getDtoUsername(), dto.getDtoUseremail(), dto.getDtoUserPassword());
+        user.setRoles(Roles.USER);
             return userRepo.save(user);
     }
 
@@ -77,6 +84,8 @@ public class UserServiceImpl implements UserService {
         }
 
     }
+
+
 }
 
 

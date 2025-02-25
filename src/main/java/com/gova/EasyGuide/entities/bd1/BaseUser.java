@@ -21,7 +21,7 @@ import java.util.Map;
 public abstract class BaseUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
     private String userName;
@@ -54,6 +54,7 @@ public abstract class BaseUser {
 
     public BaseUser(String userName, String userEmail, String userPassword) {
         this.userName = userName;
+
         this.userEmail = userEmail;
         this.userPassword = userPassword;
     }
@@ -63,3 +64,7 @@ public abstract class BaseUser {
 
 
 }
+
+
+
+

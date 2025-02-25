@@ -23,6 +23,7 @@ public class User extends BaseUser {
 
     public User(String userName, String userEmail, String userPassword) {
         super(userName, userEmail, userPassword);
+
     }
 
     public void addCourse(Courses course)

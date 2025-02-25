@@ -4,6 +4,7 @@ package com.gova.EasyGuide.entities.bd1;
 import com.gova.EasyGuide.Enums.MentorServices;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -22,7 +23,8 @@ public class Mentors extends BaseUser{
 
     private String workingRole;
 
-    private double ratting;
+    @Column(name = "user_rating", nullable = false, columnDefinition = "INT DEFAULT 0")
+    private Integer ratting=0;
 
     private Integer domainExperience;
 
@@ -47,6 +49,10 @@ public class Mentors extends BaseUser{
     {
         this.purchasedCourses.remove(course);
         course.getMentors().remove(this);
+    }
+
+    public Mentors(String userName, String userEmail, String userPassword) {
+        super(userName, userEmail, userPassword);
     }
 
 
