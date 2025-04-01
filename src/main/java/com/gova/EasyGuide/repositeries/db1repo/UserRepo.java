@@ -21,4 +21,5 @@ public interface UserRepo extends JpaRepository<User,Long> {
 
     @Query(nativeQuery = true,value = "Select * from users_table where (:profession is null or profession = :profession) AND (:ratting is null or ratting = :ratting)")
     List<Mentors> findmyoptional(@Param("profession") String profession, @Param("ratting") Double ratting);
+
 }

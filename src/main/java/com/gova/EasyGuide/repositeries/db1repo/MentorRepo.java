@@ -1,6 +1,7 @@
 package com.gova.EasyGuide.repositeries.db1repo;
 
 import com.gova.EasyGuide.entities.bd1.Mentors;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,7 +20,18 @@ public interface MentorRepo extends JpaRepository<Mentors,Long> {
     Optional<Mentors> findByUserId(Long id);
 
     @Query(nativeQuery = true,
-            value = "SELECT * from mentors_table where (:profession is null or profession = :profession) and (:rating is null or rating = :rating) and (:experience is null or experience = :experience) and (:company is null or comapny = :company) ")
-    Optional<Mentors> getmentorlistforUsers(@Param("profession") String profession, @Param("rating") Integer rating,
+            value = "SELECT * FROM mentors_table WHERE (:profession IS NULL OR LOWER(profession) = LOWER(:profession)) " +
+                    "AND (:rating IS NULL OR user_rating >= :rating) " +
+                    "AND (:experience IS NULL OR domain_experience >= :experience) " +
+                    "AND (:company IS NULL OR LOWER(working_company) = LOWER(:company)) " +
+                    "ORDER BY user_id ASC",
+            countQuery = "SELECT COUNT(*) FROM mentors_table WHERE (:profession IS NULL OR LOWER(profession) = LOWER(:profession)) " +
+                    "AND (:rating IS NULL OR user_rating >= :rating) " +
+                    "AND (:experience IS NULL OR domain_experience >= :experience) " +
+                    "AND (:company IS NULL OR LOWER(working_company) = LOWER(:company))"
+    )
+    Page<Mentors> getmentorlistforUsers(@Param("profession") String profession, @Param("rating") Integer rating,
                                         @Param("experience") Integer experience, @Param("company") String company, Pageable paga);
+
+    Mentors getMentorsByUserId(Long id);
 }

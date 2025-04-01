@@ -23,4 +23,10 @@ public class GlobalExceptions {
         return new ResponseEntity<>(ex.getMessage(),HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(AllExceptions.userNotFoundExist.class)
+    public ResponseEntity<String> UserNotFoundWithId(AllExceptions.userNotFoundExist ex)
+    {
+        return  new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
+    }
+
 }

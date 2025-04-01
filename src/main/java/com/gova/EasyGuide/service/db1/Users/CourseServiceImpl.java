@@ -46,6 +46,7 @@ public class CourseServiceImpl implements CourseService {
     public List<CourseDto> listofCourses() {
         List<CourseDto> courses = coursesRepo.findallListedCourse();
         return courses;
+
     }
 }
 

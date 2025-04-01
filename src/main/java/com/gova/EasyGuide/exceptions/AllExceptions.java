@@ -16,4 +16,10 @@ public class AllExceptions {
         }
 
     }
+    public static class userNotFoundExist extends RuntimeException{
+        public userNotFoundExist(String str)
+        {
+            super(str);
+        }
+    }
 }

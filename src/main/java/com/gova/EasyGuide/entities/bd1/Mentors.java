@@ -1,14 +1,12 @@
 package com.gova.EasyGuide.entities.bd1;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gova.EasyGuide.Enums.MentorServices;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "mentors_table")
@@ -22,6 +20,7 @@ public class Mentors extends BaseUser{
     private String workingCompany;
 
     private String workingRole;
+
 
     @Column(name = "user_rating", nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer ratting=0;
@@ -51,9 +50,24 @@ public class Mentors extends BaseUser{
         course.getMentors().remove(this);
     }
 
-    public Mentors(String userName, String userEmail, String userPassword) {
+    public Mentors(String userName, String userEmail, String userPassword)
+
+    {
         super(userName, userEmail, userPassword);
     }
+
+//    @ElementCollection
+//    @CollectionTable(name="slots_timing",joinColumns=@JoinColumn (name="user_id"))
+//    @MapKeyColumn(name = "day")
+//    @Column(name = "available_time")
+//    private Set<DayOfWeek,String> st = new Set<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true ,fetch = FetchType.EAGER)
+    private List<MentorAvalibility> availabilitySlots = new ArrayList<>() {
+    };
+
+
 
 
 
