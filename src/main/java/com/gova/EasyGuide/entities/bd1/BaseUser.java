@@ -33,6 +33,8 @@ public abstract class BaseUser {
     private Long userContactNumber;
 
 
+
+
     private String profession;
 
     @ColumnDefault("'https.imageurl'")

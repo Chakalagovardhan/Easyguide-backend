@@ -1,6 +1,8 @@
 package com.gova.EasyGuide.service.db1.Users;
 
 
+import com.gova.EasyGuide.DTOS.MentorAvailabilityResponseDTO;
+import com.gova.EasyGuide.DTOS.MentorAvailabilitySlotDTO;
 import com.gova.EasyGuide.Enums.Roles;
 import com.gova.EasyGuide.entities.bd1.MentorAvalibility;
 import com.gova.EasyGuide.entities.bd1.Mentors;
@@ -14,9 +16,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MenotrServiceImpl implements MentorService {
@@ -89,11 +94,17 @@ public class MenotrServiceImpl implements MentorService {
     @Override
     public void addMentorSlots(List<MentorAvalibility> mentorSlots, Long id) {
         Optional<Mentors> mentorsOptional = mentorRepo.findByUserId(id);
+        DateTimeFormatter formate = DateTimeFormatter.ofPattern("HH:mm");
 
         if (mentorsOptional.isPresent()) {
             Mentors mentor = mentorsOptional.get();
 
             for (MentorAvalibility slot : mentorSlots) {
+                LocalTime startTime = LocalTime.parse(slot.getStartTime().toString(), formate);
+                LocalTime endTime = LocalTime.parse(slot.getEndTime().toString(),formate);
+
+                slot.setStartTime(startTime);
+                slot.setEndTime(endTime);
                 slot.setMentor(mentor);
 
                 // Check if the slot already exists before inserting
@@ -122,6 +133,44 @@ public class MenotrServiceImpl implements MentorService {
             return mentorRepo.getMentorsByUserId(id);
         }else {
             throw new AllExceptions.userNotFoundExist("user not found with the given id");
+        }
+    }
+
+    @Override
+    public MentorAvailabilityResponseDTO getPreviousMentorSlots(Long id) {
+
+        Optional<Mentors> optionalMentors = mentorRepo.findByUserId(id);
+        List<MentorAvailabilitySlotDTO> slots = null;
+        if (optionalMentors.isPresent()) {
+            List<MentorAvalibility> mentorAvalibilityList = mentorAvalibilityRepo.findByMentor_UserId(id);
+            slots = mentorAvalibilityList.stream().map(slot -> new MentorAvailabilitySlotDTO(
+                            slot.getWeekday().toString(),
+                            slot.getStartTime().toString(),
+                            slot.getEndTime().toString(),
+                            slot.getBookingStatus()
+                    )
+            ).collect(Collectors.toList());
+        }
+
+        return new MentorAvailabilityResponseDTO(id, slots);
+    }
+
+    @Override
+    public Boolean validateMentor(String mail, String password) {
+        Optional<Mentors> optionalMentors = mentorRepo.findByUserEmail(mail);
+        if(optionalMentors.isPresent())
+        {
+            String dbEmail =optionalMentors.get().getUserEmail();
+            String dbPassword=optionalMentors.get().getUserPassword();
+
+            if(dbEmail.equals(mail) && dbPassword.equals(password))
+            {
+                return  true;
+            }else {
+                throw  new AllExceptions.userNotFoundExist("Internal error");
+            }
+        }else {
+            throw  new AllExceptions.userNotFoundExist("User with this mail is not register pleaase register");
         }
     }
 

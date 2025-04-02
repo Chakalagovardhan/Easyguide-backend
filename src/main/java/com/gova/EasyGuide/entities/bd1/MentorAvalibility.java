@@ -32,6 +32,8 @@ public class MentorAvalibility {
 
     private  LocalTime endTime;
 
+    private Boolean bookingStatus=false;
+
     public void setMentor(Mentors mentors)
     {
         this.mentor=mentors;

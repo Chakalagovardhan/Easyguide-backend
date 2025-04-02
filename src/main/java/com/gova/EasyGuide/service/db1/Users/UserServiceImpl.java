@@ -85,6 +85,25 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public boolean validateUser(String mail, String password) {
+        Optional<User> optionalUser = userRepo.findByUserEmail(mail);
+        if(optionalUser.isPresent())
+        {
+            String dbEmail = optionalUser.get().getUserEmail();
+           String dbPassword= optionalUser.get().getUserPassword();
+           if(dbEmail==mail && dbPassword==password)
+           {
+               return true;
+           }
+           else {
+               return false;
+           }
+        }else {
+            throw  new AllExceptions.userNotFoundExist("User with this mail is not register pleaase register");
+        }
+    }
+
 
 }
 

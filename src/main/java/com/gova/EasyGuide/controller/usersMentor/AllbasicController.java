@@ -3,6 +3,7 @@ package com.gova.EasyGuide.controller.usersMentor;
 
 import com.gova.EasyGuide.entities.bd1.Mentors;
 import com.gova.EasyGuide.entities.bd1.User;
+import com.gova.EasyGuide.entities.bd1.UserLogin;
 import com.gova.EasyGuide.entities.bd1.UserRegistartionDto;
 import com.gova.EasyGuide.service.db1.Users.MentorService;
 import com.gova.EasyGuide.service.db1.Users.UserService;
@@ -101,6 +102,17 @@ public class AllbasicController {
         }
 
     }
+
+    @GetMapping("/login")
+    public ResponseEntity<Boolean> validateUser(@RequestBody UserLogin userDetails)
+    {
+
+       return  new ResponseEntity<>(userService.validateUser(
+               userDetails.getLoginId(),userDetails.getLoginPassword()
+       ),HttpStatus.OK);
+    }
+
+
 
 
 

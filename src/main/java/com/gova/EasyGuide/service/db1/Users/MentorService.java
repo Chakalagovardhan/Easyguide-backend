@@ -2,6 +2,7 @@ package com.gova.EasyGuide.service.db1.Users;
 
 
 
+import com.gova.EasyGuide.DTOS.MentorAvailabilityResponseDTO;
 import com.gova.EasyGuide.entities.bd1.MentorAvalibility;
 import com.gova.EasyGuide.entities.bd1.Mentors;
 import com.gova.EasyGuide.entities.bd1.UserRegistartionDto;
@@ -23,6 +24,10 @@ public interface MentorService {
     public void addMentorSlots(List<MentorAvalibility> mentorSlots,Long id);
 
     public Mentors getMentorWithId(Long id);
+
+    public MentorAvailabilityResponseDTO getPreviousMentorSlots(Long id);
+
+    public Boolean validateMentor(String mail,String password);
 
 
 }

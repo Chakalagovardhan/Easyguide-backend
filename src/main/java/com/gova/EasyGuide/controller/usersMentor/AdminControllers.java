@@ -1,10 +1,8 @@
 package com.gova.EasyGuide.controller.usersMentor;
 
 
-import com.gova.EasyGuide.entities.bd1.CourseDto;
-import com.gova.EasyGuide.entities.bd1.Courses;
-import com.gova.EasyGuide.entities.bd1.MentorAvalibility;
-import com.gova.EasyGuide.entities.bd1.Mentors;
+import com.gova.EasyGuide.DTOS.MentorAvailabilityResponseDTO;
+import com.gova.EasyGuide.entities.bd1.*;
 import com.gova.EasyGuide.service.db1.Users.CourseServiceImpl;
 import com.gova.EasyGuide.service.db1.Users.MenotrServiceImpl;
 import com.gova.EasyGuide.service.db1.Users.MentorService;
@@ -61,6 +59,20 @@ public class AdminControllers {
     {
 
         return  new ResponseEntity<>(mentorService.getMentorWithId(id),HttpStatus.FOUND);
+    }
+
+    @GetMapping("/getpreviousSlots/{id}")
+    public ResponseEntity<MentorAvailabilityResponseDTO> getPreviousMentorSlots(@PathVariable Long id)
+    {
+        return new ResponseEntity<>(mentorService.getPreviousMentorSlots(id),HttpStatus.OK);
+    }
+
+    @GetMapping("/mentorlogin")
+    public ResponseEntity<Boolean> validateMentor(@RequestBody UserLogin user)
+    {
+        return new ResponseEntity<>(
+                mentorService.validateMentor(user.getLoginId(),user.getLoginPassword())
+                ,HttpStatus.OK);
     }
 
 

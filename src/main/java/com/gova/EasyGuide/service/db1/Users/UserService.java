@@ -12,5 +12,7 @@ public interface UserService {
 
     public void  updatingUsersDeatails(User user);
 
+    public boolean validateUser(String mail,String password);
+
 
 }
