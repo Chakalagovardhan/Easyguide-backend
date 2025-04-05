@@ -1,8 +1,10 @@
-package com.gova.EasyGuide.entities.bd1;
+package com.gova.EasyGuide.entities.db1;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gova.EasyGuide.Enums.MentorServices;
+import com.gova.EasyGuide.entities.db2.MentorReview;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -62,10 +64,13 @@ public class Mentors extends BaseUser{
 //    @Column(name = "available_time")
 //    private Set<DayOfWeek,String> st = new Set<>();
 
-    @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true ,fetch = FetchType.EAGER)
     private List<MentorAvalibility> availabilitySlots = new ArrayList<>() {
     };
+
+    @Transient
+    private List<MentorReview> reviewList = new ArrayList<>();
 
 
 

@@ -1,11 +1,9 @@
-package com.gova.EasyGuide.entities.bd1;
+package com.gova.EasyGuide.entities.db1;
 
-import com.gova.EasyGuide.service.db1.Users.UserService;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity

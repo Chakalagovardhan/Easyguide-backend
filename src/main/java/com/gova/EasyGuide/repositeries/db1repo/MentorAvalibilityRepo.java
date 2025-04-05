@@ -1,9 +1,9 @@
 package com.gova.EasyGuide.repositeries.db1repo;
 
 import com.gova.EasyGuide.Enums.Weekday;
-import com.gova.EasyGuide.entities.bd1.MentorAvalibility;
-import com.gova.EasyGuide.entities.bd1.MentorAvalibilityId;
-import com.gova.EasyGuide.entities.bd1.Mentors;
+import com.gova.EasyGuide.entities.db1.MentorAvalibility;
+import com.gova.EasyGuide.entities.db1.MentorAvalibilityId;
+import com.gova.EasyGuide.entities.db1.Mentors;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

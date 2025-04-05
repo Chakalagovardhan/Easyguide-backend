@@ -1,6 +1,6 @@
 package com.gova.EasyGuide.repositeries.db1repo;
 
-import com.gova.EasyGuide.entities.bd1.Mentors;
+import com.gova.EasyGuide.entities.db1.Mentors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

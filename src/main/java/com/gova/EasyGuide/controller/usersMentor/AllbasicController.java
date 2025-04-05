@@ -1,18 +1,17 @@
 package com.gova.EasyGuide.controller.usersMentor;
 
 
-import com.gova.EasyGuide.entities.bd1.Mentors;
-import com.gova.EasyGuide.entities.bd1.User;
-import com.gova.EasyGuide.entities.bd1.UserLogin;
-import com.gova.EasyGuide.entities.bd1.UserRegistartionDto;
+import com.gova.EasyGuide.entities.db1.Mentors;
+import com.gova.EasyGuide.entities.db1.User;
+import com.gova.EasyGuide.entities.db1.UserLogin;
+import com.gova.EasyGuide.entities.db1.UserRegistartionDto;
+import com.gova.EasyGuide.entities.db2.MentorReview;
 import com.gova.EasyGuide.service.db1.Users.MentorService;
 import com.gova.EasyGuide.service.db1.Users.UserService;
-import com.gova.EasyGuide.service.db1.Users.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -110,6 +109,14 @@ public class AllbasicController {
        return  new ResponseEntity<>(userService.validateUser(
                userDetails.getLoginId(),userDetails.getLoginPassword()
        ),HttpStatus.OK);
+    }
+
+
+    @PostMapping("/review/{mentorId}/{userId}")
+    public ResponseEntity<?> addMentorReview(@RequestBody MentorReview review,
+                                             @PathVariable Long mentorId,@PathVariable Long userId)
+    {
+        return  new ResponseEntity<>(mentorService.addMentorReview(review,mentorId,userId),HttpStatus.CREATED);
     }
 
 

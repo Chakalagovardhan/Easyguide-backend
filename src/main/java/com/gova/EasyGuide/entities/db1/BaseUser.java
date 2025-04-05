@@ -1,4 +1,4 @@
-package com.gova.EasyGuide.entities.bd1;
+package com.gova.EasyGuide.entities.db1;
 
 
 import com.gova.EasyGuide.Enums.Roles;
@@ -8,7 +8,6 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @MappedSuperclass
@@ -31,9 +30,6 @@ public abstract class BaseUser {
     private String userEmail;
 
     private Long userContactNumber;
-
-
-
 
     private String profession;
 

@@ -2,18 +2,15 @@ package com.gova.EasyGuide.controller.usersMentor;
 
 
 import com.gova.EasyGuide.DTOS.MentorAvailabilityResponseDTO;
-import com.gova.EasyGuide.entities.bd1.*;
+import com.gova.EasyGuide.entities.db1.*;
 import com.gova.EasyGuide.service.db1.Users.CourseServiceImpl;
 import com.gova.EasyGuide.service.db1.Users.MenotrServiceImpl;
-import com.gova.EasyGuide.service.db1.Users.MentorService;
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/admin")
@@ -54,11 +51,11 @@ public class AdminControllers {
         return  new ResponseEntity<>("New Slots are updated",HttpStatus.OK);
     }
 
-    @GetMapping("/getmentor/{id}")
-    public ResponseEntity<Mentors> getMentorById(@PathVariable Long id)
+    @GetMapping("/getmentor/{userId}")
+    public ResponseEntity<Mentors> getMentorById(@PathVariable Long userId)
     {
 
-        return  new ResponseEntity<>(mentorService.getMentorWithId(id),HttpStatus.FOUND);
+        return  new ResponseEntity<>(mentorService.getMentorWithId(userId),HttpStatus.OK);
     }
 
     @GetMapping("/getpreviousSlots/{id}")

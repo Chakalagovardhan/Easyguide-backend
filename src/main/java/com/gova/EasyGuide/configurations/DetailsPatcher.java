@@ -1,7 +1,7 @@
 package com.gova.EasyGuide.configurations;
 
 
-import com.gova.EasyGuide.entities.bd1.BaseUser;
+import com.gova.EasyGuide.entities.db1.BaseUser;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;

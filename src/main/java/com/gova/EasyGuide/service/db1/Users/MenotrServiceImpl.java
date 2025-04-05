@@ -4,12 +4,15 @@ package com.gova.EasyGuide.service.db1.Users;
 import com.gova.EasyGuide.DTOS.MentorAvailabilityResponseDTO;
 import com.gova.EasyGuide.DTOS.MentorAvailabilitySlotDTO;
 import com.gova.EasyGuide.Enums.Roles;
-import com.gova.EasyGuide.entities.bd1.MentorAvalibility;
-import com.gova.EasyGuide.entities.bd1.Mentors;
-import com.gova.EasyGuide.entities.bd1.UserRegistartionDto;
+import com.gova.EasyGuide.entities.db1.MentorAvalibility;
+import com.gova.EasyGuide.entities.db1.Mentors;
+import com.gova.EasyGuide.entities.db1.UserRegistartionDto;
+import com.gova.EasyGuide.entities.db2.MentorReview;
 import com.gova.EasyGuide.exceptions.AllExceptions;
 import com.gova.EasyGuide.repositeries.db1repo.MentorAvalibilityRepo;
 import com.gova.EasyGuide.repositeries.db1repo.MentorRepo;
+import com.gova.EasyGuide.repositeries.db1repo.UserRepo;
+import com.gova.EasyGuide.repositeries.db2repo.MentorReviewRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +36,11 @@ public class MenotrServiceImpl implements MentorService {
     private MentorAvalibilityRepo mentorAvalibilityRepo;
 
 
+    @Autowired
+    private MentorReviewRepo mentorReviewRepo;
+
+    @Autowired
+    private UserRepo userRepo;
 
 
 
@@ -172,6 +180,31 @@ public class MenotrServiceImpl implements MentorService {
         }else {
             throw  new AllExceptions.userNotFoundExist("User with this mail is not register pleaase register");
         }
+    }
+
+    @Override
+    public String addMentorReview(MentorReview review, Long mentorId, Long userId) {
+
+        Mentors mentor = mentorRepo.findByUserId(mentorId).orElse(null);
+
+        if(mentor==null)
+        {
+            return "Mentor not found!";
+        }
+        if(userRepo.findByUserId(userId).isEmpty())
+        {
+            return "User not found! ";
+        }
+        MentorReview review1 = new MentorReview();
+        review1.setMentorReview(mentorId, mentor.getUserName(), review.getHeading(),review.getBody());
+        mentorReviewRepo.save(review1);
+
+        return "Reviewed sucesfully";
+    }
+
+    @Override
+    public List<MentorReview> getReviwsForMentor(Long id) {
+        return mentorReviewRepo.findByMentorUserId(id);
     }
 
 

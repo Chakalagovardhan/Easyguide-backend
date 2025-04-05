@@ -1,4 +1,4 @@
-package com.gova.EasyGuide.entities.bd1;
+package com.gova.EasyGuide.entities.db1;
 
 public interface CourseDto {
 
