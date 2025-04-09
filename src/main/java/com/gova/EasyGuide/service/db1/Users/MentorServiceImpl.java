@@ -6,6 +6,7 @@ import com.gova.EasyGuide.DTOS.MentorAvailabilitySlotDTO;
 import com.gova.EasyGuide.Enums.Roles;
 import com.gova.EasyGuide.entities.db1.MentorAvalibility;
 import com.gova.EasyGuide.entities.db1.Mentors;
+import com.gova.EasyGuide.entities.db1.UserLogin;
 import com.gova.EasyGuide.entities.db1.UserRegistartionDto;
 import com.gova.EasyGuide.entities.db2.MentorReview;
 import com.gova.EasyGuide.exceptions.AllExceptions;
@@ -16,6 +17,10 @@ import com.gova.EasyGuide.repositeries.db2repo.MentorReviewRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 
@@ -42,10 +47,16 @@ public class MentorServiceImpl implements MentorService {
     @Autowired
     private UserRepo userRepo;
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JWTService jwtService;
+
 
 
     @Override
-    public Mentors registerMentor(UserRegistartionDto dto) {
+    public Mentors registerMentor(UserRegistartionDto dto) throws AllExceptions.userAllReadyExist{
         Optional<Mentors> userfind = mentorRepo.findByUserEmail(dto.getDtoUseremail());
 
         if(userfind.isPresent())
@@ -54,7 +65,7 @@ public class MentorServiceImpl implements MentorService {
 
         }
         Mentors mentor = new Mentors(dto.getDtoUsername(), dto.getDtoUseremail(), dto.getDtoUserPassword());
-        mentor.setRatting(0);
+        mentor.setRatting(3);
         mentor.setRoles(Roles.MENTOR);
         return mentorRepo.save(mentor);
     }
@@ -90,10 +101,12 @@ public class MentorServiceImpl implements MentorService {
           return mentorRepo.save(current);
        }
        else {
-           throw new AllExceptions.userAllReadyExist("User with the give id doesn't exist");
+           throw new AllExceptions.userNotFound("User with the give id doesn't exist");
        }
     }
 
+
+    //verification is pending
     @Override
     public Page<Mentors> getMentorListForUsers(String profession, Integer rating, Integer experience, String company, Pageable pageable) {
         return mentorRepo.getmentorlistforUsers(profession, rating, experience, company, pageable);
@@ -124,11 +137,11 @@ public class MentorServiceImpl implements MentorService {
                     mentorAvalibilityRepo.save(slot);
                 }
                 else {
-                    throw new AllExceptions.userNotFoundExist("User with this ID not found");
+                    throw new AllExceptions.resourceAllreadyExist("some new slots are previously exist");
                 }
             }
         } else {
-            throw new AllExceptions.userNotFoundExist("User with this ID not found");
+            throw new AllExceptions.userNotFound("User with this ID not found");
         }
     }
 
@@ -144,7 +157,7 @@ public class MentorServiceImpl implements MentorService {
             mentors.setReviewList(mentorReviewRepo.findByMentorUserId(id));
             return mentors;
         }else {
-            throw new AllExceptions.userNotFoundExist("user not found with the given id");
+            throw new AllExceptions.userNotFound("user not found with the given id");
         }
     }
 
@@ -162,27 +175,42 @@ public class MentorServiceImpl implements MentorService {
                             slot.getBookingStatus()
                     )
             ).collect(Collectors.toList());
+            return new MentorAvailabilityResponseDTO(id, slots);
+        }else {
+            throw new AllExceptions.userNotFound("user not found with the given id");
         }
 
-        return new MentorAvailabilityResponseDTO(id, slots);
+
     }
 
     @Override
-    public Boolean validateMentor(String mail, String password) {
-        Optional<Mentors> optionalMentors = mentorRepo.findByUserEmail(mail);
+    public HashMap<String,String> validateMentor(UserLogin userLogin)
+    {
+        Optional<Mentors> optionalMentors = mentorRepo.findByUserEmail(userLogin.getUserName());
         if(optionalMentors.isPresent())
         {
-            String dbEmail =optionalMentors.get().getUserEmail();
-            String dbPassword=optionalMentors.get().getUserPassword();
+            try {
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                userLogin.getUserName(),
+                                userLogin.getUserPassword()
+                        )
+                );
 
-            if(dbEmail.equals(mail) && dbPassword.equals(password))
-            {
-                return  true;
-            }else {
-                throw  new AllExceptions.userNotFoundExist("Internal error");
+                HashMap<String,String> keys = new HashMap<>();
+                keys.put("JWT_TOKEN", jwtService.generateToken(userLogin.getUserName()));
+                keys.put("REFRESH_TOKEN", jwtService.getRefreshToken(
+                        userLogin.getUserName(),
+                        userLogin.getUserPassword()
+                ));
+                return keys;
+
+            } catch (AuthenticationException e) {
+                // Return empty map when authentication fails
+                throw new AllExceptions.invalidCredentails("Credentails are not matched");
             }
         }else {
-            throw  new AllExceptions.userNotFoundExist("User with this mail is not register pleaase register");
+            throw  new AllExceptions.userNotFound("User with this username is not register pleaase register");
         }
     }
 
@@ -193,11 +221,11 @@ public class MentorServiceImpl implements MentorService {
 
         if(mentor==null)
         {
-            return "Mentor not found!";
+            throw new AllExceptions.userNotFound("Mentor is not found");
         }
         if(userRepo.findByUserId(userId).isEmpty())
         {
-            return "User not found! ";
+            throw new AllExceptions.userNotFound("Mentor is not found");
         }
         MentorReview review1 = new MentorReview();
         review1.setMentorReview(mentorId, mentor.getUserName(), review.getHeading(),review.getBody());

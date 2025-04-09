@@ -60,7 +60,6 @@ public class SpringConfiguration {
     public AuthenticationProvider authenticationProvider()
     {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        //NoOpPasswordEncoder.getInstance()
         //byycrptpassworndeconeoder strength
         provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         //myUSerDetailsServcei

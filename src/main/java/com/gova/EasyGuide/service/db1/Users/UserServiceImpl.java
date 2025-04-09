@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User regiseterUser(UserRegistartionDto dto) {
+    public User regiseterUser(UserRegistartionDto dto) throws AllExceptions.userAllReadyExist {
 
         Optional<User> userfind = userRepo.findByUserEmail(dto.getDtoUseremail());
 
@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
                 e.printStackTrace();
             }
         }else {
-            throw new AllExceptions.userAllReadyExist("user does with the given values");
+            throw new AllExceptions.userNotFound("user not found with");
         }
 
     }
@@ -106,26 +106,31 @@ public class UserServiceImpl implements UserService {
     public HashMap<String,String> validateUser(UserLogin userLogin) {
         System.out.println("Authenticating user: " + userLogin.getUserName());
 
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            userLogin.getUserName(),
-                            userLogin.getUserPassword()
-                    )
-            );
+        Optional<User> user = userRepo.findByUserName(userLogin.getUserName());
+        if(user.isPresent())
+        {
+            try {
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                userLogin.getUserName(),
+                                userLogin.getUserPassword()
+                        )
+                );
 
-            HashMap<String,String> keys = new HashMap<>();
-            keys.put("JWT_TOKEN", jwtService.generateToken(userLogin.getUserName()));
-            keys.put("REFRESH_TOKEN", jwtService.getRefreshToken(
-                    userLogin.getUserName(),
-                    userLogin.getUserPassword()
-            ));
-            return keys;
+                HashMap<String,String> keys = new HashMap<>();
+                keys.put("JWT_TOKEN", jwtService.generateToken(userLogin.getUserName()));
+                keys.put("REFRESH_TOKEN", jwtService.getRefreshToken(
+                        userLogin.getUserName(),
+                        userLogin.getUserPassword()
+                ));
+                return keys;
 
-        } catch (AuthenticationException e) {
-            // Return empty map when authentication fails
-            return new HashMap<>();
+            } catch (AuthenticationException e) {
+                // Return empty map when authentication fails
+                throw new AllExceptions.invalidCredentails("Credentails are not matched");
+            }
         }
+        throw  new AllExceptions.userNotFound("User with this username is not register pleaase register");
     }
 
     public User getUserDetails(String userName)

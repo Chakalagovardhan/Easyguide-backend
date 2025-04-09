@@ -23,10 +23,21 @@ public class GlobalExceptions {
         return new ResponseEntity<>(ex.getMessage(),HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(AllExceptions.userNotFoundExist.class)
-    public ResponseEntity<String> UserNotFoundWithId(AllExceptions.userNotFoundExist ex)
+    @ExceptionHandler(AllExceptions.userNotFound.class)
+    public ResponseEntity<String> UserNotFoundWithId(AllExceptions.userNotFound ex)
     {
         return  new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AllExceptions.invalidCredentails.class)
+    public ResponseEntity<String> inavalidCredentails(AllExceptions.invalidCredentails ex)
+    {
+        return new ResponseEntity<>(ex.getMessage(),HttpStatus.UNAUTHORIZED);
+    }
+
+    public ResponseEntity<String> resourceAllreadyExist(AllExceptions.resourceAllreadyExist ex)
+    {
+        return  new ResponseEntity<>(ex.getMessage(),HttpStatus.CONFLICT);
     }
 
 }
