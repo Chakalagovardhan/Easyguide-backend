@@ -2,7 +2,10 @@ package com.gova.EasyGuide.service.db1.Users;
 
 import com.gova.EasyGuide.entities.db1.User;
 import com.gova.EasyGuide.entities.db1.UserRegistartionDto;
+import com.gova.EasyGuide.entities.db1.UserLogin;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
 
 @Service
 public interface UserService {
@@ -11,7 +14,10 @@ public interface UserService {
 
     public void  updatingUsersDeatails(User user);
 
-    public boolean validateUser(String mail,String password);
+
+    public HashMap<String,String> validateUser(UserLogin userLogin);
+
+    public User getUserDetails(String userName);
 
 
 }

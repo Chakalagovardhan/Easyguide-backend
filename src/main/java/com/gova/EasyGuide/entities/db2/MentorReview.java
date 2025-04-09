@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collation = "mentor_reviews")
+@Document(collection = "mentor_reviews")
 public class MentorReview {
 
     @Id

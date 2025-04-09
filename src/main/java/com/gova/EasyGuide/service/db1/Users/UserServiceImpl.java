@@ -5,12 +5,19 @@ import com.gova.EasyGuide.Enums.Roles;
 import com.gova.EasyGuide.configurations.DetailsPatcher;
 import com.gova.EasyGuide.entities.db1.User;
 import com.gova.EasyGuide.entities.db1.UserRegistartionDto;
+import com.gova.EasyGuide.entities.db1.UserLogin;
 import com.gova.EasyGuide.exceptions.AllExceptions;
 import com.gova.EasyGuide.repositeries.db1repo.MentorRepo;
 import com.gova.EasyGuide.repositeries.db1repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 @Service
@@ -25,6 +32,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private MentorRepo mentorRepo;
 
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JWTService jwtService;
+
 
     @Override
     public User regiseterUser(UserRegistartionDto dto) {
@@ -36,7 +51,9 @@ public class UserServiceImpl implements UserService {
             throw  new AllExceptions.userAllReadyExist("User allready exist with user mail");
 
         }
-            User user = new User(dto.getDtoUsername(), dto.getDtoUseremail(), dto.getDtoUserPassword());
+        //to encrypt the password
+        dto.setDtoUserPassword(encoder.encode(dto.getDtoUserPassword()));
+        User user = new User(dto.getDtoUsername(), dto.getDtoUseremail(), dto.getDtoUserPassword());
         user.setRoles(Roles.USER);
             return userRepo.save(user);
     }
@@ -82,22 +99,44 @@ public class UserServiceImpl implements UserService {
 
     }
 
+
+
+    //verifyting the username and the password at the time of thelogin
     @Override
-    public boolean validateUser(String mail, String password) {
-        Optional<User> optionalUser = userRepo.findByUserEmail(mail);
-        if(optionalUser.isPresent())
+    public HashMap<String,String> validateUser(UserLogin userLogin) {
+        System.out.println("Authenticating user: " + userLogin.getUserName());
+
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            userLogin.getUserName(),
+                            userLogin.getUserPassword()
+                    )
+            );
+
+            HashMap<String,String> keys = new HashMap<>();
+            keys.put("JWT_TOKEN", jwtService.generateToken(userLogin.getUserName()));
+            keys.put("REFRESH_TOKEN", jwtService.getRefreshToken(
+                    userLogin.getUserName(),
+                    userLogin.getUserPassword()
+            ));
+            return keys;
+
+        } catch (AuthenticationException e) {
+            // Return empty map when authentication fails
+            return new HashMap<>();
+        }
+    }
+
+    public User getUserDetails(String userName)
+    {
+        Optional<User> user = userRepo.findByUserName(userName);
+        if(user.isPresent())
         {
-            String dbEmail = optionalUser.get().getUserEmail();
-           String dbPassword= optionalUser.get().getUserPassword();
-           if(dbEmail==mail && dbPassword==password)
-           {
-               return true;
-           }
-           else {
-               return false;
-           }
-        }else {
-            throw  new AllExceptions.userNotFoundExist("User with this mail is not register pleaase register");
+            return user.get();
+        }
+        else{
+            throw new RuntimeException("User wiht this name is not found");
         }
     }
 

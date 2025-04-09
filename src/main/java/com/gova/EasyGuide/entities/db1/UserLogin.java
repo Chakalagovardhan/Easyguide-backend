@@ -8,8 +8,8 @@ import lombok.Setter;
 @Getter
 public class UserLogin {
 
-    String loginId;
+   private String userName;
 
-    String loginPassword;
+    private String userPassword;
 
 }

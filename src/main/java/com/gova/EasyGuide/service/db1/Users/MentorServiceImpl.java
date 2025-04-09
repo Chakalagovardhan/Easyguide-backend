@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class MenotrServiceImpl implements MentorService {
+public class MentorServiceImpl implements MentorService {
 
     @Autowired
     private MentorRepo mentorRepo;
@@ -55,7 +55,7 @@ public class MenotrServiceImpl implements MentorService {
         }
         Mentors mentor = new Mentors(dto.getDtoUsername(), dto.getDtoUseremail(), dto.getDtoUserPassword());
         mentor.setRatting(0);
-        mentor.setRoles(Roles.Mentor);
+        mentor.setRoles(Roles.MENTOR);
         return mentorRepo.save(mentor);
     }
 
@@ -136,9 +136,13 @@ public class MenotrServiceImpl implements MentorService {
     public Mentors getMentorWithId(Long id) {
 
         Optional<Mentors> optionalMentors =mentorRepo.findByUserId(id);
+
+
         if(optionalMentors.isPresent())
         {
-            return mentorRepo.getMentorsByUserId(id);
+            Mentors mentors = optionalMentors.get();
+            mentors.setReviewList(mentorReviewRepo.findByMentorUserId(id));
+            return mentors;
         }else {
             throw new AllExceptions.userNotFoundExist("user not found with the given id");
         }

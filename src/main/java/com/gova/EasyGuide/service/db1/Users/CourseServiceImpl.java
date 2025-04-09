@@ -1,7 +1,7 @@
 package com.gova.EasyGuide.service.db1.Users;
 
 
-import com.gova.EasyGuide.entities.db1.CourseDto;
+import com.gova.EasyGuide.DTOS.CourseDto;
 import com.gova.EasyGuide.entities.db1.Courses;
 import com.gova.EasyGuide.exceptions.AllExceptions;
 import com.gova.EasyGuide.repositeries.db1repo.CoursesRepo;

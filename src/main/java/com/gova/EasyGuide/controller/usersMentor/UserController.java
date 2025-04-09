@@ -1,11 +1,10 @@
 package com.gova.EasyGuide.controller.usersMentor;
 
 
-import com.gova.EasyGuide.entities.db1.Mentors;
-import com.gova.EasyGuide.entities.db1.User;
-import com.gova.EasyGuide.entities.db1.UserLogin;
 import com.gova.EasyGuide.entities.db1.UserRegistartionDto;
+import com.gova.EasyGuide.entities.db1.*;
 import com.gova.EasyGuide.entities.db2.MentorReview;
+import com.gova.EasyGuide.service.db1.Users.CustomerCareImpl;
 import com.gova.EasyGuide.service.db1.Users.MentorService;
 import com.gova.EasyGuide.service.db1.Users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +20,16 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user")
-public class AllbasicController {
+public class UserController {
 
     @Autowired
     private UserService userService;
 
     @Autowired
     private MentorService mentorService;
+
+    @Autowired
+    private CustomerCareImpl customerCareService;
 
 
     @PostMapping("/user-signup")
@@ -102,13 +104,14 @@ public class AllbasicController {
 
     }
 
-    @GetMapping("/login")
-    public ResponseEntity<Boolean> validateUser(@RequestBody UserLogin userDetails)
-    {
-
-       return  new ResponseEntity<>(userService.validateUser(
-               userDetails.getLoginId(),userDetails.getLoginPassword()
-       ),HttpStatus.OK);
+    @PostMapping("/login")
+    public ResponseEntity<?> validateUser(@RequestBody UserLogin userDetails) {
+        HashMap<String, String> response = userService.validateUser(userDetails);
+        if(!response.isEmpty()) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Collections.singletonMap("message", "Invalid credentials"));
     }
 
 
@@ -117,6 +120,13 @@ public class AllbasicController {
                                              @PathVariable Long mentorId,@PathVariable Long userId)
     {
         return  new ResponseEntity<>(mentorService.addMentorReview(review,mentorId,userId),HttpStatus.CREATED);
+    }
+
+    @PostMapping("/saveCutomerCare")
+    public  ResponseEntity<?> saveCustomerCare(@RequestBody CustomerCare customerCare)
+    {
+        customerCareService.saveCustomerCare(customerCare);
+        return new ResponseEntity<>("Data Saved sucessfully",HttpStatus.OK);
     }
 
 

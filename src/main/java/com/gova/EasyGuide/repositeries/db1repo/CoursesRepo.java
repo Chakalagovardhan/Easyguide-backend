@@ -1,6 +1,6 @@
 package com.gova.EasyGuide.repositeries.db1repo;
 
-import com.gova.EasyGuide.entities.db1.CourseDto;
+import com.gova.EasyGuide.DTOS.CourseDto;
 import com.gova.EasyGuide.entities.db1.Courses;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
