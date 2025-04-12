@@ -2,25 +2,17 @@ package com.gova.EasyGuide.service.db1.Users;
 
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
-
+import java.util.stream.Collectors;
 import io.jsonwebtoken.Jwts;
-import org.stringtemplate.v4.ST;
-
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 
@@ -31,36 +23,42 @@ public class JWTService {
     @Value("${jwt.secret}")
     private String secreteKey;
 
+    // In JWTService.java
+    // Add this method to JWTService
+    public String generateToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
 
-    public String generateToken(String username) {
+        //if you wnat to add any other stuff related to user floow below syntax
+//        but the get method should be in the userdetails creat it if ned it
+//        claims.put("email",userDetails.getUser().getEmail());
 
-        Map<String,Object> claims= new HashMap<>();
         return Jwts.builder()
-                .claims()
-                .add(claims)
-                .subject(username)
+                .claims(claims)
+                .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
-                .and()
                 .signWith(getKey())
                 .compact();
-
     }
 
-    public String getRefreshToken(String username , String password)
-    {
-        Map<String,Object> claims=new HashMap<>();
-        return  Jwts.builder()
-                .claims()
-                .add(claims)
-                .subject(username)
-                .subject(password)
+// Keep your existing generateToken(username, role) if needed for backward compatibility
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
+
+        return Jwts.builder()
+                .claims(claims)
+                .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+1000*60*60*24*7))
-                .and()
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7)) // 7 days
                 .signWith(getKey())
                 .compact();
-
     }
 
     private SecretKey getKey() {
@@ -68,12 +66,13 @@ public class JWTService {
         return Keys.hmacShaKeyFor(keybytes);
     }
 
-
-
-    //from here the code got copied all the way
     public String extractUserName(String token) {
-        // extract the username from jwt token
         return extractClaim(token, Claims::getSubject);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> extractRoles(String token) {
+        return extractClaim(token, claims -> (List<String>) claims.get("roles"));
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
@@ -94,12 +93,26 @@ public class JWTService {
         return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    public boolean isTokenExpired(String token) {
+        try {
+            return extractExpiration(token).before(new Date());
+        } catch (ExpiredJwtException ex) {
+            return true;
+        }
+    }
+
+    public String refreshAccessToken(String refreshToken, UserDetails userDetails) {
+        if (!isTokenExpired(refreshToken)) {
+            return generateToken(userDetails);
+        }
+        throw new RuntimeException("Refresh token expired");
     }
 
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
+//    public String extractEmail(String token) {
+//        return extractClaim(token, claims -> claims.get("email", String.class));
+//    }
 }

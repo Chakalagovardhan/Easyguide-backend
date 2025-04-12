@@ -21,6 +21,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 
@@ -52,6 +53,9 @@ public class MentorServiceImpl implements MentorService {
 
     @Autowired
     private JWTService jwtService;
+
+    @Autowired
+    private MyUserDetailsService myUserDetailsService;
 
 
 
@@ -184,12 +188,11 @@ public class MentorServiceImpl implements MentorService {
     }
 
     @Override
-    public HashMap<String,String> validateMentor(UserLogin userLogin)
-    {
+    public HashMap<String, String> validateMentor(UserLogin userLogin) {
         Optional<Mentors> optionalMentors = mentorRepo.findByUserEmail(userLogin.getUserName());
-        if(optionalMentors.isPresent())
-        {
+        if (optionalMentors.isPresent()) {
             try {
+                // Authenticate credentials
                 Authentication authentication = authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
                                 userLogin.getUserName(),
@@ -197,20 +200,21 @@ public class MentorServiceImpl implements MentorService {
                         )
                 );
 
-                HashMap<String,String> keys = new HashMap<>();
-                keys.put("JWT_TOKEN", jwtService.generateToken(userLogin.getUserName()));
-                keys.put("REFRESH_TOKEN", jwtService.getRefreshToken(
-                        userLogin.getUserName(),
-                        userLogin.getUserPassword()
-                ));
+                // Load UserDetails with proper authorities
+                UserDetails userDetails = myUserDetailsService.loadUserByUsername(userLogin.getUserName());
+
+                // Generate tokens using UserDetails (recommended approach)
+                HashMap<String, String> keys = new HashMap<>();
+                keys.put("JWT_TOKEN", jwtService.generateToken(userDetails));
+                keys.put("REFRESH_TOKEN", jwtService.generateRefreshToken(userDetails));
+
                 return keys;
 
             } catch (AuthenticationException e) {
-                // Return empty map when authentication fails
-                throw new AllExceptions.invalidCredentails("Credentails are not matched");
+                throw new AllExceptions.invalidCredentails("Credentials are not matched");
             }
-        }else {
-            throw  new AllExceptions.userNotFound("User with this username is not register pleaase register");
+        } else {
+            throw new AllExceptions.userNotFound("User with this username is not registered, please register");
         }
     }
 

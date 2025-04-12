@@ -31,7 +31,7 @@ class EasyGuideApplicationTests {
 	@Test
 	void EmailSender()
 	{
-		emailSender.sendEmail("saisasank.lakimsetti@gmail.com","Testing mail","this mail has bidy of the test");
+		emailSender.sendEmail("sgovardhan300@gmail.com","Testing mail","this mail has bidy of the test");
 	}
 
 

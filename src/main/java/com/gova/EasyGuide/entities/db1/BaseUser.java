@@ -59,9 +59,10 @@ public abstract class BaseUser {
     }
 
 
-
-
-
+    public BaseUser(String userEmail, String userPassword) {
+        this.userEmail=userEmail;
+        this.userPassword=userPassword;
+    }
 }
 
 

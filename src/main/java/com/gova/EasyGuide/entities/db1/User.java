@@ -25,6 +25,11 @@ public class User extends BaseUser {
 
     }
 
+    public User(String userEmail,String userPassword)
+    {
+        super(userEmail,userPassword);
+    }
+
     public void addCourse(Courses course)
     {
         this.purchasedCourses.add(course);

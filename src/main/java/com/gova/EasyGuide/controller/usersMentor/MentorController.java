@@ -52,12 +52,7 @@ public class MentorController {
         return  new ResponseEntity<>("New Slots are updated",HttpStatus.OK);
     }
 
-    @GetMapping("/getmentor/{userId}")
-    public ResponseEntity<Mentors> getMentorById(@PathVariable Long userId)
-    {
 
-        return  new ResponseEntity<>(mentorService.getMentorWithId(userId),HttpStatus.OK);
-    }
 
     @GetMapping("/getpreviousSlots/{id}")
     public ResponseEntity<MentorAvailabilityResponseDTO> getPreviousMentorSlots(@PathVariable Long id)
@@ -65,13 +60,13 @@ public class MentorController {
         return new ResponseEntity<>(mentorService.getPreviousMentorSlots(id),HttpStatus.OK);
     }
 
-    @GetMapping("/mentorlogin")
-    public ResponseEntity<Boolean> validateMentor(@RequestBody UserLogin user)
-    {
-        return new ResponseEntity<>(
-                mentorService.validateMentor(user.getUserName(), user.getUserPassword())
-                ,HttpStatus.OK);
-    }
+//    @GetMapping("/mentorlogin")
+//    public ResponseEntity<Boolean> validateMentor(@RequestBody UserLogin user)
+//    {
+//        return new ResponseEntity<>(
+//                mentorService.validateMentor(user.getUserName(), user.getUserPassword())
+//                ,HttpStatus.OK);
+//    }
 
 
 

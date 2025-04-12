@@ -7,11 +7,13 @@ import com.gova.EasyGuide.entities.db2.MentorReview;
 import com.gova.EasyGuide.service.db1.Users.CustomerCareImpl;
 import com.gova.EasyGuide.service.db1.Users.MentorService;
 import com.gova.EasyGuide.service.db1.Users.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +37,9 @@ public class UserController {
     @PostMapping("/user-signup")
     public ResponseEntity<String> userRegistartion(@RequestBody UserRegistartionDto dto)
     {
-        userService.regiseterUser(dto);
+        User response = userService.regiseterUser(dto);
+        System.out.println(response);
+        System.out.println(dto);
         return  new ResponseEntity<>("user registered sucesfully",HttpStatus.CREATED);
     }
 
@@ -105,13 +109,54 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> validateUser(@RequestBody UserLogin userDetails) {
-        HashMap<String, String> response = userService.validateUser(userDetails);
-        if(!response.isEmpty()) {
-            return ResponseEntity.ok(response);
+    public ResponseEntity<?> validateUser(@RequestBody UserLogin userDetails,
+                                          HttpServletResponse response) {
+        try {
+            HashMap<String, String> tokens = userService.validateUser(userDetails);
+
+            if (!tokens.isEmpty()) {
+                // Set secure HTTP-only cookies
+                ResponseCookie jwtCookie = ResponseCookie.from("JWT_TOKEN", tokens.get("JWT_TOKEN"))
+                        .httpOnly(true)
+                        .secure(false) // Set to true in production with HTTPS
+                        .path("/")
+                        .maxAge(24 * 60 * 60) // 1 day
+                        .sameSite("Lax") // or "None" if cross-site needed
+                        .build();
+
+                ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", tokens.get("REFRESH_TOKEN"))
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(7 * 24 * 60 * 60) // 7 days
+                        .sameSite("Lax")
+                        .build();
+
+                // Add cookies to response
+                response.addHeader("Set-Cookie", jwtCookie.toString());
+                response.addHeader("Set-Cookie", refreshCookie.toString());
+
+                // Also return tokens in response body if needed
+                return ResponseEntity.ok()
+                        .header("Set-Cookie", jwtCookie.toString())
+                        .header("Set-Cookie", refreshCookie.toString())
+                        .body(tokens);
+            }
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("message", "Invalid credentials"));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "Login failed: " + e.getMessage()));
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Collections.singletonMap("message", "Invalid credentials"));
+    }
+
+    @GetMapping("/getmentor/{userId}")
+    public ResponseEntity<Mentors> getMentorById(@PathVariable Long userId)
+    {
+
+        return  new ResponseEntity<>(mentorService.getMentorWithId(userId),HttpStatus.OK);
     }
 
 
@@ -128,6 +173,26 @@ public class UserController {
         customerCareService.saveCustomerCare(customerCare);
         return new ResponseEntity<>("Data Saved sucessfully",HttpStatus.OK);
     }
+
+    @PostMapping("/forgotPassword/{email}")
+    public ResponseEntity<String> frogotPassword(@PathVariable String email)
+    {
+        return  new ResponseEntity<>(userService.forgotPasswordLink(email),HttpStatus.OK);
+
+    }
+    @PostMapping("/verify-forgot-password")
+
+    public ResponseEntity<String> verifyForgotPassword(
+                                                       @RequestBody ForgotPassword credentials) {
+        String response = userService.verifyForgotPasswordLink(credentials, credentials.token);
+
+        if (response.equals("expired")) {
+            return new ResponseEntity<>("Token expired or invalid", HttpStatus.GONE);
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 
 
 
